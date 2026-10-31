@@ -66,9 +66,17 @@ unfixed. They stay counted there and count here too. <ProblemCount ticket={4471}
 
 <ReportList ticket={4471} problem="shift" />
 
+## Engineering update
+
+#4471 closed on 5 October.
+
+- `parser` · fixed · `fix(dates): parse dd/mm for eu locales` → #1 closed, done.
+- `hint` · won't fix · booking-v3 form retired → #2 closed, not planned.
+- `shift` · not in the update → #3 stays open. A day-first parse does not touch a one-day move.
+
 ## What changes for the desk
 
-- #4471 is not known-and-done. When the parser fix ships, #2 and #3 stay open.
+- Closing #4471 does not close the one-day move. #3 is the open part of it.
 - Merging on subject (decision 0001) put different bugs in one thread: the subjects are the same words
   for different faults. Before merging a big ticket, group its reports by cause, and read the
   ones that do not fit.
