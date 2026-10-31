@@ -1,0 +1,73 @@
+---
+layout: runbook
+title: '#4471, split by problem'
+owner: ArielZgorski
+status: open
+reviewed: 2026-10-31
+signature: v1.eyJzdWIiOiI4NTciLCJhdWQiOiJjaGFsbGVuZ2U6d2hhdC1pdC1zaG93cyIsImlhdCI6MTc5MzQ3NTY3OSwiZXhwIjoxNzkzNTYyMDc5fQ.nIQNPLriw--YCdDe7yQrbS_qwHb38cu9gO98cRnR-to
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import ProblemCount from '#lib/kb/ProblemCount.svelte';
+  import ReportList from '#lib/kb/ReportList.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const repo = 'https://github.com/ArielZgorski/megadev/issues';
+  const filed = {
+    parser: { label: '#1', href: `${repo}/1` },
+    hint: { label: '#2', href: `${repo}/2` },
+    shift: { label: '#3', href: `${repo}/3` },
+  };
+</script>
+
+[#4471](/kb/incidents/4471) says one issue, one fix queued. It holds <ProblemCount ticket={4471} of="problems" /> problems. The queued parser fix closes the biggest one
+and leaves the others open. Each now has its own ticket.
+
+<Callout>
+Not one issue. <ProblemCount ticket={4471} /> reports, <ProblemCount ticket={4471} of="problems" /> problems, one ticket each.
+</Callout>
+
+## The split
+
+<ProblemTable ticket={4471} {filed} />
+
+The cause comes from the tenant and the way the report came in (`causes.ts`, `problems.ts`), not
+from intake's tag. Intake guesses from the reporter's browser, and its tags disagree with the cause
+in both big groups. The export repeats some reports across pages; every count here is one id, one report.
+
+## parser → [#1](https://github.com/ArielZgorski/megadev/issues/1)
+
+The shared parser reads every date month first. All <ProblemCount ticket={4471} problem="parser" of="tenants" /> tenants on file write the day first,
+so day and month swap: 7 April goes out as 4 July. This is the fix #4471 has queued. It covers <ProblemCount ticket={4471} problem="parser" /> reports, by app, email and the booking-v2 form.
+
+<ReportList ticket={4471} problem="parser" limit={3} />
+
+## hint → [#2](https://github.com/ArielZgorski/megadev/issues/2)
+
+The booking-v3 form prints `MM/DD/YYYY` under its date field. Its tenants write the day first.
+People type what the hint tells them, the form reads it the tenant's way, and day and month swap.
+The parser fix does not touch this: the form reads the date day first, as it should, after the
+hint has made people type it wrong. Fix the hint per tenant locale. <ProblemCount ticket={4471} problem="hint" /> reports, all through the form, from <ProblemCount ticket={4471} problem="hint" of="tenants" /> tenants on booking-v3.
+
+<ReportList ticket={4471} problem="hint" limit={3} />
+
+## shift → [#3](https://github.com/ArielZgorski/megadev/issues/3)
+
+These dates are not swapped. They move by one day, and the day depends on where the reader is:
+one meeting showed Tuesday in Lisbon and Monday in Toronto. A day/month parser cannot do that; a
+time zone or daylight-saving conversion can. The desk read them as a one-day move
+(`desk-notes.json`) but filed them under `parser` by tenant, so the parser fix would close them
+unfixed. <ProblemCount ticket={4471} problem="shift" /> reports:
+
+<ReportList ticket={4471} problem="shift" />
+
+## What changes for the desk
+
+- #4471 is not known-and-done. When the parser fix ships, #2 and #3 stay open.
+- Merging on subject (decision 0001) put different bugs in one thread: the subjects are the same words
+  for different faults. Before merging a big ticket, group its reports by cause, and read the
+  ones that do not fit.
+
+<RenderStamp {signature} />

@@ -1,0 +1,4 @@
+node_modules/
+support-kb/.svelte-kit/
+support-kb/build/
+.DS_Store
