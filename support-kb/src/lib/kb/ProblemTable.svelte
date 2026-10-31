@@ -27,7 +27,7 @@
     {#each s.groups as g (g.problem)}
       <tr>
         <td><code>{g.problem}</code><br /><span class="what">{PROBLEMS[g.problem].title}</span></td>
-        <td><strong>{g.reports.length}</strong></td>
+        <td><strong>{g.reports.length}</strong>{#if g.overlap}<br /><span class="small">{g.problem === 'shift' ? 'all filed under another problem too' : `incl. ${g.overlap} also in shift`}</span>{/if}</td>
         <td>{g.tenants.length}</td>
         <td class="small">{fmt(g.channels)}</td>
         <td class="small">{fmt(g.taggedAs)}</td>

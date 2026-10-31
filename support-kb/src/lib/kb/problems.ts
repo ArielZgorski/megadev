@@ -1,6 +1,7 @@
-// Splits a merged ticket into the problems it really holds. Builds on causes.ts, with one change:
-// reports the desk read as a one-day move (desk-notes.json) are their own problem, not `parser`.
-// A month-first parse swaps day and month; it cannot move a date by one day.
+// Splits a merged ticket into the problems it really holds. Counts with the desk's view (causes.ts):
+// every report stays under the cause it is filed under. Reports the desk read as a one-day move
+// (desk-notes.json) are also their own problem, `shift`: a month-first parse swaps day and month;
+// it cannot move a date by one day. So `shift` reports count twice: filed, and as what they are.
 import { causeOf, uniqueById, type Cause, type Report, type Tenant } from '#lib/kb/causes';
 
 export type Problem = Cause | 'shift' | 'unplaced';
@@ -24,9 +25,9 @@ export const PROBLEMS: Record<Problem, { title: string; what: string }> = {
   },
 };
 
-export function problemOf(r: Report, t: Tenant | undefined, oneDayMove: readonly string[]): Problem {
-  if (oneDayMove.includes(r.id)) return 'shift';
-  return causeOf(r, t) ?? 'unplaced';
+export function problemsOf(r: Report, t: Tenant | undefined, oneDayMove: readonly string[]): Problem[] {
+  const filed: Problem = causeOf(r, t) ?? 'unplaced';
+  return oneDayMove.includes(r.id) ? [filed, 'shift'] : [filed];
 }
 
 export type ProblemGroup = {
@@ -37,6 +38,8 @@ export type ProblemGroup = {
   taggedAs: Record<string, number>;
   firstSeen: string;
   lastSeen: string;
+  // Of these, how many are also counted under another problem.
+  overlap: number;
 };
 
 const tally = (xs: string[]) => xs.reduce<Record<string, number>>((n, x) => ({ ...n, [x]: (n[x] ?? 0) + 1 }), {});
@@ -50,8 +53,7 @@ export function splitTicket(
   const merged = uniqueById(all).filter((r) => r.mergedInto === ticket);
   const by = new Map<Problem, Report[]>();
   for (const r of merged) {
-    const p = problemOf(r, tenantOf(r), oneDayMove);
-    by.set(p, [...(by.get(p) ?? []), r]);
+    for (const p of problemsOf(r, tenantOf(r), oneDayMove)) by.set(p, [...(by.get(p) ?? []), r]);
   }
   const groups = [...by.entries()]
     .map(([problem, rs]) => {
@@ -64,6 +66,7 @@ export function splitTicket(
         taggedAs: tally(rs.map((r) => r.meta.intakeTag)),
         firstSeen: days[0],
         lastSeen: days[days.length - 1],
+        overlap: problem === 'shift' ? rs.length : rs.filter((r) => oneDayMove.includes(r.id)).length,
       };
     })
     .sort((a, b) => b.reports.length - a.reports.length);

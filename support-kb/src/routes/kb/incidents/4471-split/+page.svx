@@ -36,11 +36,14 @@ Not one issue. <ProblemCount ticket={4471} /> reports, <ProblemCount ticket={447
 The cause comes from the tenant and the way the report came in (`causes.ts`, `problems.ts`), not
 from intake's tag. Intake guesses from the reporter's browser, and its tags disagree with the cause
 in both big groups. The export repeats some reports across pages; every count here is one id, one report.
+Counts follow the desk's view: a report stays under the cause it is filed under. The one-day moves
+are filed under `parser` and also counted under `shift`, so the rows add up to more than the ticket.
 
 ## parser → [#1](https://github.com/ArielZgorski/megadev/issues/1)
 
 The shared parser reads every date month first. All <ProblemCount ticket={4471} problem="parser" of="tenants" /> tenants on file write the day first,
-so day and month swap: 7 April goes out as 4 July. This is the fix #4471 has queued. It covers <ProblemCount ticket={4471} problem="parser" /> reports, by app, email and the booking-v2 form.
+so day and month swap: 7 April goes out as 4 July. This is the fix #4471 has queued. It covers <ProblemCount ticket={4471} problem="parser" /> reports, by app, email and the booking-v2 form, counted as filed:
+that includes the one-day moves below.
 
 <ReportList ticket={4471} problem="parser" limit={3} />
 
@@ -59,7 +62,7 @@ These dates are not swapped. They move by one day, and the day depends on where 
 one meeting showed Tuesday in Lisbon and Monday in Toronto. A day/month parser cannot do that; a
 time zone or daylight-saving conversion can. The desk read them as a one-day move
 (`desk-notes.json`) but filed them under `parser` by tenant, so the parser fix would close them
-unfixed. <ProblemCount ticket={4471} problem="shift" /> reports:
+unfixed. They stay counted there and count here too. <ProblemCount ticket={4471} problem="shift" /> reports:
 
 <ReportList ticket={4471} problem="shift" />
 

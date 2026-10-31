@@ -1,11 +1,12 @@
 # megadev: #4471 split by problem
 
 The support desk merged 412 date reports into one ticket, #4471, and marked it known. It holds three problems.
+Counts follow the desk's own view, as exported: a report stays under the cause it is filed under, so the 5 one-day moves count under #1 and #3.
 Each now has its own ticket in this repo's issues.
 
 | ticket | problem | reports |
 |---|---|---|
-| [#1](https://github.com/ArielZgorski/megadev/issues/1) | Shared parser reads day-first dates month first | 374 |
+| [#1](https://github.com/ArielZgorski/megadev/issues/1) | Shared parser reads day-first dates month first | 379 |
 | [#2](https://github.com/ArielZgorski/megadev/issues/2) | booking-v3 form hints MM/DD/YYYY to day-first tenants | 33 |
 | [#3](https://github.com/ArielZgorski/megadev/issues/3) | Invites land one day off (time zone) | 5 |
 
